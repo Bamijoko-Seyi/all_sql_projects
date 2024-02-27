@@ -1,0 +1,40 @@
+{
+    "agent": "na",
+    "steps": [
+   {
+    "thought": "Lets identify the relevant tables and columns",
+    "action": ["Relevant tables are: users u1, tweets t1 t2 t3, follows f1",
+    "Relevant columns are: u1.usr, t1.writer, t2.writer, t3.writer, t1.tdate, t2.tdate, t3.tdate f1.flwee"],
+    "actionResponse": "na",
+    "observation": "na"
+   },
+   {
+    "thought": "lets find the join conditions",
+    "action": ["u1.usr = t1.writer for tweets t1",
+                "u1.usr = t2.writer AND t1.tdate <> t2.tdate for tweets t2",
+                "u1.usr = t3.writer AND t1.tdate <> t3.tdate AND t2.tdate <> t3.tdate for tweets t3 ",
+                "left join on u1.usr = f1.flwee for follows f1"],
+    "actionResponse": "na",
+    "observation": "na"
+   },
+   {
+    "thought": "lets write the where conditions and the full query",
+    "action": [
+        "SELECT DISTINCT u1.usr",
+        "FROM users u1",
+        "JOIN tweets t1 ON u1.usr = t1.writer",
+        "JOIN tweets t2 ON u1.usr = t2.writer AND t1.tdate <> t2.tdate",
+        "JOIN tweets t3 ON u1.usr = t3.writer AND t1.tdate <> t3.tdate AND t2.tdate <> t3.tdate",
+        "LEFT JOIN follows f1 ON u1.usr = f1.flwee",
+        "WHERE UPPER(t1.text) LIKE '%EDMONTON%'",
+        "AND UPPER(t2.text) LIKE '%EDMONTON%'",
+        "AND UPPER(t3.text) LIKE '%EDMONTON%'",
+        "AND f1.flwer IS NULL;"
+    ],
+    "actionResponse": "na",
+    "observation": "It passes the tests"
+}
+
+   ]
+}
+   

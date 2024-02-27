@@ -1,0 +1,45 @@
+{
+    "agent": "na",
+    "steps": [
+   {
+    "thought": "Lets identify the relevant tables and columns",
+    "action": ["Relevant tables are: users u1 u2 u3 u4, tweets t1, follows f1 f2 f3, retweets r1 r2 r3",
+                "Relevant columns are: u1.usr, u2.usr, u3.usr, u4.usr, t1.writer, r1.writer, r2.writer, r3.writer, t1.tdate",
+                "r1.tdate, r2.tdate, r3.tdate, f1.flwee, f2.flwee, f3.flwee, f1.flwer, f2.flwer, f3.flwer"],
+    "actionResponse": "na",
+    "observation": "na"
+   },
+   {
+    "thought": "lets find the join conditions",
+    "action": ["u1.usr  = t1.writer for tweets t1",
+                "r1.writer = t1.writer AND r1.usr = u2.usr AND r1.tdate = t1.tdate for retweets r1",
+                "r2.writer = t1.writer AND r2.usr = u3.usr AND r2.tdate = t1.tdate AND r2.rdate <> r1.rdate for retweets r2",
+                "r3.writer = t1.writer AND r3.usr = u4.usr AND r3.tdate = t1.tdate AND r2.rdate <> r1.rdate",
+                 "AND r3.rdate <> r1.rdate AND r2.rdate <> r3.rdate for retweets r3",
+                "f1.flwee = u1.usr AND f1.flwer = u2.usr for follows f1",
+                "f2.flwee = u1.usr AND f2.flwer = u3.usr for follows f2",
+                "f3.flwee = u1.usr AND f3.flwer = u4.usr for follows f3"],
+    "actionResponse": "na",
+    "observation": "na"
+   },
+   {
+    "thought": "lets write the where conditions and the full query",
+    "action": [
+        "SELECT DISTINCT u1.usr, t1.text, t1.tdate",
+        "FROM users u1, users u2, users u3, users u4",
+        "JOIN tweets t1 ON u1.usr = t1.writer",
+        "JOIN retweets r1 ON r1.writer = t1.writer AND r1.usr = u2.usr AND r1.tdate = t1.tdate",
+        "JOIN retweets r2 ON r2.writer = t1.writer AND r2.usr = u3.usr AND r2.tdate = t1.tdate AND r2.rdate <> r1.rdate",
+        "JOIN retweets r3 ON r3.writer = t1.writer AND r3.usr = u4.usr AND r3.tdate = t1.tdate AND r2.rdate <> r1.rdate",
+        "AND r3.rdate <> r1.rdate AND r2.rdate <> r3.rdate",
+        "JOIN follows f1 ON f1.flwee = u1.usr AND f1.flwer = u2.usr",
+        "JOIN follows f2 ON f2.flwee = u1.usr AND f2.flwer = u3.usr",
+        "JOIN follows f3 ON f3.flwee = u1.usr AND f3.flwer = u4.usr;"
+    ],
+    "actionResponse": "na",
+    "observation": "It passes the tests"
+}
+
+   ]
+}
+   

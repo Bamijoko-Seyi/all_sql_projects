@@ -1,0 +1,162 @@
+{
+    "agent": "ChatGPT",
+    "steps": [
+   {
+    "thought": "Lets find out how to extraction specific portions from a date type",
+    "action": "Ask ChatGpt on how to extract specific part of a date type",
+    "actionResponse": [
+        "To extract specific portions from a date type in SQLite, you can use the strftime function.",
+        "Here's an example of how to find the month of a datetime column:",
+        "```sql",
+        "SELECT strftime('%m', your_datetime_column) AS month",
+        "FROM your_table;",
+        "```"
+    ],
+    "observation": "strftime('%m', datetime(t1.tdate)) works as intended when placed in tables"
+   },
+   {
+    "thought": "Lets indentify the rows and tables for our tweet_info CTE",
+    "action": ["Relevant tables are: tweets t1 and retweets r1",
+    "Relevant columns are: u1.uname, t1.writer, t1.tdate, t1.replyto_w, r1.writer"],
+    "actionResponse": "na",
+    "observation": "na"
+   },
+   {
+    "thought": "Lets indentify the rows and tables for our tweet_info CTE",
+    "action": ["Relevant tables are: tweets t1 and retweets r1",
+    "Relevant columns are: u1.uname, t1.writer, t1.tdate, t1.replyto_w, r1.writer"],
+    "actionResponse": "na",
+    "observation": "na"
+   },
+   {
+    "thought": "Let's code the tweet_info CTE that gives us basic tweet info with additional info",
+    "action": [
+        "Tweet_info CTE:",
+        "```sql",
+        "WITH tweet_info AS (",
+        "    SELECT t1.writer, t1.tdate, t1.replyto_w, r1.writer,",
+        "        COUNT(t1.writer) AS tweet_count,",
+        "        strftime('%m', datetime(t1.tdate)) AS month,",
+        "        COUNT(r1.writer) AS retweet_count",
+        "    FROM tweets t1",
+        "    LEFT JOIN retweets r1 ON t1.writer = r1.writer AND strftime('%Y', datetime(t1.tdate)) = '2023'",
+        "    GROUP BY strftime('%m', datetime(t1.tdate))",
+        ")",
+        "```"
+    ],
+    "actionResponse": "na",
+    "observation": "It returns the t1.writer, t1.tdate, t1.replyto_w, r1.writer, tweet_count, month and retweet_count "
+    },
+    {
+        "thought": "Lets indentify the rows and tables for our null_count CTE",
+        "action": ["Relevant tables are: tweets t1",
+        "Relevant columns are: t1.replyto_w, t1.replyto_d, t1.tdate"],
+        "actionResponse": "na",
+        "observation": "na"
+    },
+    {
+        "thought": "Let's write the null_count CTE that gives us the numbers of tweets in a month that have null replies",
+        "action": [
+            "Null_count CTE:",
+            "```sql",
+            "null_count AS (",
+            "    SELECT",
+            "        COUNT(CASE WHEN t1.replyto_w IS NULL THEN 0 ELSE 1 END) AS null_count,",
+            "        strftime('%m', datetime(t1.tdate)) AS month",
+            "    FROM tweets t1",
+            "    WHERE t1.replyto_w IS NULL AND t1.replyto_d IS NULL AND strftime('%Y', datetime(t1.tdate)) = '2023'",
+            "    GROUP BY strftime('%m', datetime(t1.tdate))",
+            ")",
+            "```"
+        ],
+        "actionResponse": "na",
+        "observation": "works as expected it returns the number of tweets in a month that have a null for their replies"
+    },
+    {
+        "thought": "Lets indentify the rows and tables for our tweet_count CTE",
+        "action": ["Relevant tables are: tweets t1",
+        "Relevant columns are: t1.replyto_w, t1.replyto_d, t1.tdate"],
+        "actionResponse": "na",
+        "observation": "na"
+    },
+    {
+        "thought": "Let's write the tweet_count CTE that gives us the numbers of tweets in a month that don't have null replies",
+        "action": [
+            "Tweet_count CTE:",
+            "```sql",
+            "tweet_count AS (",
+            "    SELECT",
+            "        COUNT(t1.replyto_w) AS tweet_count,",
+            "        strftime('%m', datetime(t1.tdate)) AS month",
+            "    FROM tweets t1",
+            "    WHERE t1.replyto_w IS NOT NULL AND strftime('%Y', datetime(t1.tdate)) = '2023'",
+            "    GROUP BY strftime('%m', datetime(t1.tdate))",
+            ")",
+            "```"
+        ],
+        "actionResponse": "na",
+        "observation": "works as expected it returns the number of tweets in a month that don't have a null for their replies"
+    },
+    {
+        "thought": "Lets indentify the rows and tables for our retweet_count CTE",
+        "action": ["Relevant tables are: retweets r1",
+        "Relevant columns are: r1.tdate"],
+        "actionResponse": "na",
+        "observation": "na"
+    },
+    {
+        "thought": "Let's write the retweet_count CTE that gives us the numbers of retweets in a month for the year 2023",
+        "action": [
+            "Retweet_count CTE:",
+            "```sql",
+            "retweet_count AS (",
+            "    SELECT",
+            "        COUNT(strftime('%m', datetime(r1.rdate))) AS retweet_count,",
+            "        strftime('%m', datetime(r1.rdate)) AS month",
+            "    FROM retweets r1",
+            "    WHERE strftime('%Y', datetime(r1.rdate)) = '2023'",
+            "    GROUP BY strftime('%m', datetime(r1.rdate))",
+            ")",
+            "```"
+        ],
+        "actionResponse": "na",
+        "observation": "it returns the number of retweets in a month for 2023"
+    },
+    {
+        "thought": "Let's ask ChatGPT on how to convert results into text",
+        "action": [
+            "To convert results into text in SQLite, you can use the CAST function with the AS TEXT syntax.",
+            "Here's an example:",
+            "```sql",
+            "SELECT CAST(your_column AS TEXT) AS text_result",
+            "FROM your_table;",
+            "```"
+        ],
+        "actionResponse": "na",
+        "observation": "results are successfully casted to text"
+    },
+    {
+        "thought": "Using the CTE, CASE, and LEFT OUTER JOIN, let's finish the query",
+        "action": [
+            "Completed Query:",
+            "```sql",
+            "SELECT ",
+            "    CAST(tweet_info.month AS TEXT) AS month_str,",
+            "    (CASE WHEN null_count.null_count IS NULL THEN 0 ELSE null_count.null_count END) AS tcnt,",
+            "    (CASE WHEN tweet_count.tweet_count IS NULL THEN 0 ELSE tweet_count.tweet_count END) AS rep_cnt,",
+            "    (CASE WHEN retweet_count.retweet_count IS NULL THEN 0 ELSE retweet_count.retweet_count END) AS ret_cnt,",
+            "    (CASE WHEN null_count.null_count IS NULL THEN 0 ELSE null_count.null_count END) +",
+            "    (CASE WHEN tweet_count.tweet_count IS NULL THEN 0 ELSE tweet_count.tweet_count END) +",
+            "    (CASE WHEN retweet_count.retweet_count IS NULL THEN 0 ELSE retweet_count.retweet_count END) AS total",
+            "FROM tweet_info",
+            "LEFT OUTER JOIN null_count ON tweet_info.month = null_count.month",
+            "LEFT OUTER JOIN tweet_count ON tweet_info.month = tweet_count.month",
+            "LEFT OUTER JOIN retweet_count ON tweet_info.month = retweet_count.month;",
+            "```"
+        ],
+        "actionResponse": "na",
+        "observation": "Results are successfully pass the test"
+    }
+   ]
+}
+   

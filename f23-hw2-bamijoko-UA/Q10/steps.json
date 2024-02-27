@@ -1,0 +1,185 @@
+{
+    "agent": "ChatGPT",
+    "steps": [
+   {
+    "thought": "Lets identify rows and tables for the follower_number query",
+    "action": ["Relevant tables are: users u1 u2, follows f1",
+    "Relevant columns are: u1.usr, u2.usr f1.flwer"],
+    "actionResponse": "na",
+    "observation": "na"
+   },
+   {
+    "thought": "lets identify the join conditions for follow_number",
+    "action": ["u1.usr = f1.flwee for follows u1",
+                "u2.usr = f1.flwer for user u2"],
+    "actionResponse": "na",
+    "observation": "na"
+   },
+   {
+    "thought": "Let's use the table, columns, and join conditions to code the follower_number",
+    "action": [
+        "```sql",
+        "SELECT u1.usr, COUNT(u2.usr) as flw_nmber",
+        "    FROM users u1",
+        "    JOIN follows f1 ON u1.usr = f1.flwee",
+        "    JOIN users u2 ON u2.usr = f1.flwer",
+        "    GROUP BY u1.usr;",
+        "```"
+    ],
+    "actionResponse": "na",
+    "observation": "The query gives the number of followers for each tweet"
+    },
+    {
+    "thought": "Lets identify rows and tables for the retweet_number query",
+    "action": ["Relevant tables are: tweets t1, retweets r1",
+    "Relevant columns are: r1.writer, t1.writer, r1.tdate, t1.tdate"],
+    "actionResponse": "na",
+    "observation": "na"
+    },
+    {
+        "thought": "lets identify the join conditions for retweet_number",
+    "action": ["r1.writer = t1.writer and r1.tdate = t1.tdate for retweets r1"],
+    "actionResponse": "na",
+    "observation": "na"
+    },
+    {
+        "thought": "Let's use the table, columns, and join conditions to code the retweet_number",
+        "action": [
+            "```sql",
+            "SELECT t1.writer, COUNT(r1.writer) as rtwt_number",
+            "    FROM tweets t1",
+            "    JOIN retweets r1 ON r1.writer = t1.writer and r1.tdate = t1.tdate",
+            "    GROUP BY t1.writer;",
+            "```"
+        ],
+        "actionResponse": "na",
+        "observation": "The query gives the number of retweets for each tweet"
+    },
+    {
+        "thought": "Lets identify rows and tables for the max_retweets query",
+        "action": ["Relevant tables are: tStat",
+        "Relevant columns are: writer,ret_cnt"],
+        "actionResponse": "na",
+        "observation": "na"
+    },
+    {
+        "thought": "Let's use the table and columns to code the max_retweets",
+        "action": [
+            "```sql",
+            "SELECT writer, (MAX(ret_cnt)/COUNT(WRITER)) AS max_ret_cnt",
+            "    FROM tStat",
+            "    GROUP BY writer;",
+            "```"
+        ],
+        "actionResponse": "na",
+        "observation": "This query gives the max average number of retweets for each user"
+    },
+    {
+        "thought": "Lets identify rows and tables for the usr_stat query",
+        "action": ["Relevant tables are: users u1, follower_number fn, max_retweets m1",
+        "Relevant columns are: u1.usr, fn.usr, m1.writer"],
+        "actionResponse": "na",
+        "observation": "na"
+    },
+    {
+        "thought": "lets identify the join  and left join conditions for usr_stat",
+        "action": ["JOIN follower_number fn ON u1.usr = fn.usr",
+                    "LEFT JOIN max_retweets m1 ON m1.writer = u1.usr"],
+        "actionResponse": "na",
+        "observation": "na"
+    },
+    {
+        "thought": "Let's use the table, columns and join relations to code the usr_stat",
+        "action": [
+            "```sql",
+            "SELECT",
+            "        u1.usr,",
+            "        fn.flw_nmber,",
+            "        (CASE WHEN m1.max_ret_cnt IS NULL THEN 0 ELSE m1.max_ret_cnt END) AS max_ret_cnt",
+            "    FROM users u1",
+            "    JOIN follower_number fn ON u1.usr = fn.usr",
+            "    LEFT JOIN max_retweets m1 ON m1.writer = u1.usr;",
+            "```"
+        ],
+        "actionResponse": "na",
+        "observation": "this query gives the result combination of max_retweets and follower_number"
+    },
+    {
+        "thought": "Let's identify rows and tables for the hghst_flwers query",
+        "action": [
+            "Relevant tables are: usr_stat ranked_users",
+            "Relevant columns are: usr, flw_nmber, max_ret_cnt, rnk"
+        ],
+        "actionResponse": "na",
+        "observation": "na"
+    },
+    {
+        "thought": "Let's use the table and columns to code the hghst_flwers",
+        "action": [
+            "```sql",
+            "SELECT usr, flw_nmber, max_ret_cnt, ('top in followers') AS 'top in retweets'",
+            "    FROM (",
+            "        SELECT",
+            "            usr,",
+            "            flw_nmber,",
+            "            max_ret_cnt,",
+            "            RANK() OVER (ORDER BY flw_nmber DESC) AS rnk",
+            "        FROM usr_stat",
+            "    ) ranked_users",
+            "    WHERE rnk = 1;",
+            "```"
+        ],
+        "actionResponse": "na",
+        "observation": "This query gives the users that have the highes number of followers"
+    },
+    {
+        "thought": "Let's identify rows and tables for the hghst_rtwt query",
+        "action": [
+            "Relevant tables are: max_retweets hghst_flwers",
+            "Relevant columns are: writer, max_ret_cnt, rnk"
+        ],
+        "actionResponse": "na",
+        "observation": "na"
+    },
+    {
+        "thought": "Let's use the table and columns to code the hghst_rtwts",
+        "action": [
+            "```sql",
+            "SELECT writer AS usr, max_ret_cnt, 'top in retweets' AS 'top in retweets'",
+            "    FROM (",
+            "        SELECT",
+            "            writer,",
+            "            max_ret_cnt,",
+            "            RANK() OVER (ORDER BY max_ret_cnt DESC) AS rnk",
+            "        FROM max_retweets",
+            "    ) ranked_users",
+            "    WHERE writer NOT IN (SELECT usr FROM hghst_flwers) and rnk = 1;",
+            "```"
+        ],
+        "actionResponse": "na",
+        "observation": "This query gives the users that have the highes number of retweets"
+    },
+    {
+        "thought": "Let's ask ChatGpt to give us a main query on given examples",
+        "action": [
+            "```sql",
+            "SELECT usr, 'top in followers'",
+            "FROM hghst_flwers",
+            "UNION ",
+            "SELECT usr,'top in retweets'",
+            "FROM hghst_rtwt;",
+            "```"
+        ],
+        "actionResponse": "na",
+        "observation": "This main query passes the test"
+    }
+    
+    
+    
+    
+    
+    
+
+   ]
+}
+   

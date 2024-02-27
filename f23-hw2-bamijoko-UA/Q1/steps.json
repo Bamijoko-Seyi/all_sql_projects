@@ -1,0 +1,32 @@
+{
+    "agent": "na",
+    "steps": [
+   {
+    "thought": "lets identify relevant tables",
+    "action": ["Relevant tables are: users,follows,tweets and includes",
+                "Relevant columns are users.usr, follows.flwee, tweets.writer, includes.member"],
+    "actionResponse": "",
+    "observation": "na"
+   },
+   {
+    "thought": "lets write where conditons for the tables",
+    "action": ["where condtions are: users.usr = follows.flwee, users.usr = tweets.writer",
+                "and users.usr = includes.member"],
+    "actionResponse": "na",
+    "observation": "na"
+   },
+   {
+    "thought": "lets write select conditon and full query for our for the tables",
+    "action": [
+        "SELECT DISTINCT users.usr",
+        "FROM users, follows, tweets, includes",
+        "WHERE users.usr = follows.flwee",
+        "AND users.usr = tweets.writer",
+        "AND users.usr = includes.member;"
+    ],
+    "actionResponse": "",
+    "observation": "The passes the test"
+   }
+   ]
+}
+   

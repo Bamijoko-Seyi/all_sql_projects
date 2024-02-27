@@ -1,0 +1,88 @@
+{
+    "agent": "ChatGpt",
+    "steps": [
+   {
+    "thought": "Let's find out if we can have subqueries in the from clause",
+    "action": "Ask ChatGpt if it is possible to have subqueries in the from clause",
+    "actionResponse": [
+        "In standard SQL, you cannot have subqueries directly in the FROM clause.",
+        "However, you can use derived tables or common table expressions (CTEs) to achieve similar results.",
+        "Here's an example using a derived table:",
+        "```sql",
+        "SELECT *",
+        "FROM (SELECT column1, column2 FROM another_table) AS subquery",
+        "WHERE subquery.column1 = 'some_value';",
+        "```",
+        "And here's an example using a CTE:",
+        "```sql",
+        "WITH subquery AS (",
+        "    SELECT column1, column2",
+        "    FROM another_table",
+        ")",
+        "SELECT *",
+        "FROM subquery",
+        "WHERE subquery.column1 = 'some_value';",
+        "```"
+    ],
+    "observation": "na"
+   },
+   {
+    "thought": "Let us code a CTE that finds the tweet writer, tweet date, tweet, and retweet count",
+    "action": [
+        "CTE for retweet_count:",
+        "```sql",
+        "WITH subquery AS (",
+        "    SELECT t1.writer, t1.tdate, t1.text, COUNT(r1.usr) AS retweet_count",
+        "    FROM tweets t1",
+        "    LEFT JOIN retweets r1 ON t1.writer = r1.writer AND t1.tdate = r1.tdate",
+        "    GROUP BY t1.writer, t1.tdate, t1.text",
+        ")",
+        "```"
+    ],
+    "actionResponse": "na",
+    "observation": "successfully gives the tweet writer, tweet date, tweet, and retweet count of a user "
+    },
+    {
+        "thought": [
+            "Let us write a subquery that gives the tweet writer, tweet date, tweet, and retweet count of a user",
+            "in the descending order of retweet count. We check if the retweet count from our CTE is in the current result"
+        ],
+        "action": [
+            "Subquery to filter by top 3 retweet counts:",
+            "```sql",
+            "SELECT writer, tdate, text",
+            "FROM Subquery",
+            "WHERE retweet_count IN (",
+            "    SELECT retweet_count",
+            "    FROM (",
+            "        SELECT t2.writer, t2.tdate, t2.text, COUNT(r2.usr) AS retweet_count",
+            "        FROM tweets t2",
+            "        LEFT JOIN retweets r2 ON t2.writer = r2.writer AND t2.tdate = r2.tdate",
+            "        GROUP BY t2.writer, t2.tdate, t2.text",
+            "        ORDER BY retweet_count DESC",
+            "        ",
+            "    )",
+            ")",
+            "ORDER BY retweet_count DESC;",
+            "```"
+        ],
+        "actionResponse": "na",
+        "observation": ["the query works but it doesn't give the top 3 tweets with the largest number of retweets"]
+    },
+    {
+        "thought": ["Let us ask find out if there is function that restricts the results to only 3 rows"],
+        "action": ["Ask ChatGPt if it is possible to restrict the size of results"],
+        "actionResponse": [
+            "To restrict the size of results to only 3 rows, you can use the LIMIT clause in your SQL query. Here's an example:",
+            "```sql",
+            "SELECT column1, column2",
+            "FROM your_table",
+            "LIMIT 3;",
+            "```"
+        ],
+        "observation": "Adding limit 3 to the query makes it pass the tests"
+       }
+    
+   ]
+}
+   
